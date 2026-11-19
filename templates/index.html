@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cisco NOC Automation Dashboard</title>
+    <style>
+        :root {
+            --bg-main: #0b0f19;
+            --bg-card: #111827;
+            --bg-terminal: #060911;
+            --border-color: #1f2937;
+            --text-primary: #f3f4f6;
+            --text-muted: #9ca3af;
+            --accent: #06b6d4;
+            --accent-hover: #0891b2;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Navigation Bar */
+        .navbar {
+            background-color: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .brand-dot {
+            width: 10px;
+            height: 10px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        .status-badge {
+            background-color: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--success);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-family: monospace;
+        }
+
+        /* Split-Screen Layout */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 24px;
+            padding: 24px 32px;
+            flex: 1;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 900px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+                padding: 16px;
+            }
+        }
+
+        /* Left Sidebar Card */
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            height: fit-content;
+        }
+
+        .card h2 {
+            font-size: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .info-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            font-size: 14px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .info-item span:first-child {
+            color: var(--text-muted);
+        }
+
+        .info-item span:last-child {
+            font-family: monospace;
+            color: var(--accent);
+        }
+
+        .cmd-preview {
+            background-color: var(--bg-terminal);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 13px;
+            color: var(--text-muted);
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .cmd-preview li::before {
+            content: "> ";
+            color: var(--accent);
+        }
+
+        /* Run Button & Spinner */
+        .btn-run {
+            width: 100%;
+            background-color: var(--accent);
+            color: #060911;
+            font-weight: 700;
+            font-size: 15px;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .btn-run:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-run:active {
+            transform: scale(0.98);
+        }
+
+        .btn-run:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2.5px solid #060911;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Right Terminal Area */
+        .terminal-panel {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-height: 500px;
+        }
+
+        .error-banner {
+            background-color: rgba(239, 68, 68, 0.15);
+            border-bottom: 1px solid var(--danger);
+            color: #fca5a5;
+            padding: 16px 20px;
+            font-size: 14px;
+        }
+
+        /* Tabs */
+        .tabs-bar {
+            display: flex;
+            background-color: #0d1320;
+            border-bottom: 1px solid var(--border-color);
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            border-right: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 14px 20px;
+            font-family: monospace;
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+
+        .tab-btn.active {
+            color: var(--accent);
+            background-color: var(--bg-terminal);
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .tab-content {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            background-color: var(--bg-terminal);
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        .terminal-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #090d16;
+            border-bottom: 1px solid var(--border-color);
+            font-family: monospace;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .copy-btn {
+            background-color: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .copy-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        pre {
+            padding: 20px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 13.5px;
+            line-height: 1.6;
+            color: #38bdf8;
+            overflow: auto;
+            flex: 1;
+            max-height: 600px;
+        }
+
+        /* Empty Placeholder */
+        .empty-state {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+            background-color: var(--bg-terminal);
+        }
+
+        .empty-state p {
+            max-width: 360px;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="brand">
+            <span class="brand-dot"></span>
+            <span>CISCO IOS AUTOMATION</span>
+        </div>
+        <div class="status-badge">Target: 192.168.10.84:32770 (Telnet)</div>
+    </header>
+
+    <main class="dashboard">
+        <!-- Left Control Panel -->
+        <aside class="card">
+            <h2>Device Details</h2>
+            <div class="info-list">
+                <div class="info-item">
+                    <span>Host IP</span>
+                    <span>192.168.10.84</span>
+                </div>
+                <div class="info-item">
+                    <span>Port</span>
+                    <span>32770</span>
+                </div>
+                <div class="info-item">
+                    <span>Driver</span>
+                    <span>cisco_ios_telnet</span>
+                </div>
+            </div>
+
+            <h2>Queued Commands</h2>
+            <ul class="cmd-preview">
+                <li>show version</li>
+                <li>show ip interface brief</li>
+                <li>show running-config</li>
+            </ul>
+
+            <form method="POST" onsubmit="startLoading()">
+                <button type="submit" id="runBtn" class="btn-run">
+                    Run Commands
+                </button>
+            </form>
+        </aside>
+
+        <!-- Right Terminal Output -->
+        <section class="terminal-panel">
+            {% if error %}
+            <div class="error-banner">
+                <strong>Connection Error:</strong> {{ error }}
+            </div>
+            {% endif %}
+
+            {% if result %}
+                {% if result is mapping %}
+                    <div class="tabs-bar">
+                        {% for command in result.keys() %}
+                        <button type="button" 
+                                class="tab-btn {% if loop.first %}active{% endif %}" 
+                                onclick="switchTab(event, 'pane-{{ loop.index }}')">
+                            {{ command }}
+                        </button>
+                        {% endfor %}
+                    </div>
+
+                    {% for command, output in result.items() %}
+                    <div id="pane-{{ loop.index }}" class="tab-content {% if loop.first %}active{% endif %}">
+                        <div class="terminal-toolbar">
+                            <span>Router# {{ command }}</span>
+                            <button type="button" class="copy-btn" onclick="copyOutput('code-{{ loop.index }}', this)">
+                                Copy Output
+                            </button>
+                        </div>
+                        <pre id="code-{{ loop.index }}">{{ output }}</pre>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="terminal-toolbar">
+                        <span>Console Output</span>
+                    </div>
+                    <pre>{{ result }}</pre>
+                {% endif %}
+            {% else %}
+                <div class="empty-state">
+                    <h3>Ready to Connect</h3>
+                    <p>Pindota ang <strong>Run Commands</strong> sa wala para mo-login sa router ug i-display ang output dinhi.</p>
+                </div>
+            {% endif %}
+        </section>
+    </main>
+
+    <script>
+        function startLoading() {
+            const btn = document.getElementById('runBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Connecting to router...';
+        }
+
+        function switchTab(event, paneId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(pane => pane.classList.remove('active'));
+            
+            event.currentTarget.classList.add('active');
+            document.getElementById(paneId).classList.add('active');
+        }
+
+        function copyOutput(elementId, button) {
+            const text = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = button.innerText;
+                button.innerText = 'Copied!';
+                setTimeout(() => { button.innerText = originalText; }, 1500);
+            });
+        }
+    </script>
+</body>
+</html>
