@@ -1,302 +1,302 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cisco NOC Automation Dashboard</title>
+    <title>Cisco IOS Automation | Network Console</title>
     <style>
         :root {
-            --bg-main: #0b0f19;
-            --bg-card: #111827;
-            --bg-terminal: #060911;
-            --border-color: #1f2937;
-            --text-primary: #f3f4f6;
-            --text-muted: #9ca3af;
-            --accent: #06b6d4;
-            --accent-hover: #0891b2;
-            --success: #10b981;
-            --danger: #ef4444;
+            --bg-main: #f3f5fa;
+            --bg-card: #ffffff;
+            --bg-terminal: #111827;
+            --bg-terminal-top: #1b2638;
+            --border-color: #e3e8f1;
+            --text-primary: #172033;
+            --text-muted: #68758b;
+            --accent: #635bdb;
+            --accent-hover: #5148c8;
+            --success: #15966b;
+            --danger: #dc4c64;
+            --shadow: 0 12px 34px rgba(31, 42, 68, 0.07);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-main);
+            font-family: Inter, "Segoe UI", Tahoma, sans-serif;
+            background:
+                radial-gradient(circle at 8% 0%, rgba(99, 91, 219, .08), transparent 28rem),
+                var(--bg-main);
             color: var(--text-primary);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
 
-        /* Top Navigation Bar */
         .navbar {
-            background-color: var(--bg-card);
+            background: rgba(255, 255, 255, .92);
             border-bottom: 1px solid var(--border-color);
-            padding: 16px 32px;
+            padding: 17px clamp(18px, 4vw, 48px);
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 14px;
+            box-shadow: 0 3px 16px rgba(31, 42, 68, .035);
         }
 
         .brand {
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 18px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
+            gap: 12px;
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: 1.15px;
         }
 
         .brand-dot {
-            width: 10px;
-            height: 10px;
-            background-color: var(--accent);
-            border-radius: 50%;
-            box-shadow: 0 0 10px var(--accent);
+            width: 12px;
+            height: 12px;
+            background: var(--accent);
+            border-radius: 4px;
+            transform: rotate(45deg);
+            box-shadow: 0 0 0 5px rgba(99, 91, 219, .11);
         }
 
         .status-badge {
-            background-color: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            color: var(--success);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-family: monospace;
+            background: #eaf8f2;
+            border: 1px solid #c8ecdc;
+            color: #137b59;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-family: "Consolas", monospace;
+            font-weight: 600;
         }
 
-        /* Split-Screen Layout */
         .dashboard {
             display: grid;
-            grid-template-columns: 340px 1fr;
-            gap: 24px;
-            padding: 24px 32px;
+            grid-template-columns: minmax(270px, 330px) minmax(0, 1fr);
+            gap: 22px;
+            padding: 28px clamp(18px, 4vw, 48px);
             flex: 1;
-            max-width: 1400px;
+            max-width: 1500px;
             width: 100%;
             margin: 0 auto;
         }
 
         @media (max-width: 900px) {
-            .dashboard {
-                grid-template-columns: 1fr;
-                padding: 16px;
-            }
+            .dashboard { grid-template-columns: 1fr; padding: 18px; }
         }
 
-        /* Left Sidebar Card */
         .card {
-            background-color: var(--bg-card);
+            background: var(--bg-card);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 24px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 19px;
             height: fit-content;
+            box-shadow: var(--shadow);
         }
 
         .card h2 {
-            font-size: 15px;
+            font-size: 11px;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-muted);
+            letter-spacing: 1.35px;
+            color: #77839a;
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
+            padding-bottom: 12px;
         }
 
         .info-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            font-size: 14px;
+            gap: 15px;
+            font-size: 13px;
         }
 
         .info-item {
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            gap: 12px;
         }
 
-        .info-item span:first-child {
-            color: var(--text-muted);
-        }
+        .info-item span:first-child { color: var(--text-muted); }
 
         .info-item span:last-child {
-            font-family: monospace;
+            font-family: "Consolas", monospace;
             color: var(--accent);
+            font-size: 12px;
+            font-weight: 700;
+            text-align: right;
         }
 
         .cmd-preview {
-            background-color: var(--bg-terminal);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 12px;
-            font-family: monospace;
-            font-size: 13px;
-            color: var(--text-muted);
+            background: #f7f8fc;
+            border: 1px solid #e8ebf3;
+            border-radius: 10px;
+            padding: 14px;
+            font-family: "Consolas", monospace;
+            font-size: 12px;
+            color: #48556c;
             list-style: none;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 11px;
         }
 
         .cmd-preview li::before {
-            content: "> ";
+            content: "› ";
             color: var(--accent);
+            font-weight: 800;
         }
 
-        /* Run Button & Spinner */
         .btn-run {
             width: 100%;
-            background-color: var(--accent);
-            color: #060911;
+            background: var(--accent);
+            color: #fff;
             font-weight: 700;
-            font-size: 15px;
+            font-size: 14px;
             border: none;
-            padding: 14px;
-            border-radius: 8px;
+            padding: 14px 16px;
+            border-radius: 10px;
             cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 10px;
-            transition: background 0.2s, transform 0.1s;
+            box-shadow: 0 7px 16px rgba(99, 91, 219, .2);
+            transition: background .2s, transform .15s, box-shadow .2s;
         }
 
         .btn-run:hover {
-            background-color: var(--accent-hover);
+            background: var(--accent-hover);
+            box-shadow: 0 9px 20px rgba(99, 91, 219, .27);
         }
 
-        .btn-run:active {
-            transform: scale(0.98);
-        }
-
-        .btn-run:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
+        .btn-run:active { transform: translateY(1px); }
+        .btn-run:disabled { opacity: .72; cursor: wait; box-shadow: none; }
 
         .spinner {
             width: 16px;
             height: 16px;
-            border: 2.5px solid #060911;
+            border: 2.5px solid rgba(255,255,255,.8);
             border-top-color: transparent;
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            animation: spin .8s linear infinite;
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
 
-        /* Right Terminal Area */
         .terminal-panel {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
+            background: var(--bg-terminal);
+            border: 1px solid #202b3d;
+            border-radius: 16px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            min-height: 500px;
+            min-height: 540px;
+            box-shadow: var(--shadow);
         }
 
         .error-banner {
-            background-color: rgba(239, 68, 68, 0.15);
-            border-bottom: 1px solid var(--danger);
-            color: #fca5a5;
-            padding: 16px 20px;
-            font-size: 14px;
+            background: rgba(220, 76, 100, .13);
+            border-bottom: 1px solid rgba(220, 76, 100, .55);
+            color: #ffb5c0;
+            padding: 15px 20px;
+            font-size: 13px;
         }
 
-        /* Tabs */
         .tabs-bar {
             display: flex;
-            background-color: #0d1320;
-            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-terminal-top);
+            border-bottom: 1px solid #2a374b;
             overflow-x: auto;
         }
 
         .tab-btn {
-            background: none;
-            border: none;
-            border-right: 1px solid var(--border-color);
-            color: var(--text-muted);
-            padding: 14px 20px;
-            font-family: monospace;
-            font-size: 13px;
+            background: transparent;
+            border: 0;
+            border-right: 1px solid #2a374b;
+            color: #9ba9bd;
+            padding: 15px 19px;
+            font-family: "Consolas", monospace;
+            font-size: 12px;
             cursor: pointer;
             white-space: nowrap;
-            transition: all 0.2s;
+            transition: color .2s, background .2s;
         }
 
         .tab-btn:hover {
-            color: var(--text-primary);
-            background-color: rgba(255, 255, 255, 0.03);
+            color: #fff;
+            background: rgba(255,255,255,.045);
         }
 
         .tab-btn.active {
-            color: var(--accent);
-            background-color: var(--bg-terminal);
-            border-bottom: 2px solid var(--accent);
+            color: #c4c0ff;
+            background: var(--bg-terminal);
+            box-shadow: inset 0 -2px var(--accent);
         }
 
         .tab-content {
             display: none;
             flex-direction: column;
             flex: 1;
-            background-color: var(--bg-terminal);
+            min-height: 0;
+            background: var(--bg-terminal);
         }
 
-        .tab-content.active {
-            display: flex;
-        }
+        .tab-content.active { display: flex; }
 
         .terminal-toolbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 20px;
-            background-color: #090d16;
-            border-bottom: 1px solid var(--border-color);
-            font-family: monospace;
+            gap: 12px;
+            padding: 12px 20px;
+            background: #151f2e;
+            border-bottom: 1px solid #263247;
+            font-family: "Consolas", monospace;
             font-size: 12px;
-            color: var(--text-muted);
+            color: #aab6c8;
         }
 
         .copy-btn {
-            background-color: var(--bg-card);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-            padding: 5px 12px;
-            border-radius: 6px;
-            font-size: 12px;
+            background: #263247;
+            color: #dbe3ef;
+            border: 1px solid #35445c;
+            padding: 7px 12px;
+            border-radius: 7px;
+            font-size: 11px;
+            font-weight: 600;
             cursor: pointer;
+            transition: .2s;
         }
 
         .copy-btn:hover {
-            border-color: var(--accent);
-            color: var(--accent);
+            border-color: #8b83f0;
+            color: #d1ceff;
         }
 
         pre {
-            padding: 20px;
-            font-family: 'Consolas', 'Courier New', monospace;
-            font-size: 13.5px;
-            line-height: 1.6;
-            color: #38bdf8;
+            padding: 22px;
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.7;
+            color: #b9c9e2;
             overflow: auto;
             flex: 1;
-            max-height: 600px;
+            max-height: 650px;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
         }
 
-        /* Empty Placeholder */
         .empty-state {
             flex: 1;
             display: flex;
@@ -304,17 +304,27 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 40px;
-            color: var(--text-muted);
-            background-color: var(--bg-terminal);
+            padding: 40px 24px;
+            color: #aab6c8;
+            background:
+                radial-gradient(circle at center, rgba(99, 91, 219, .11), transparent 17rem),
+                var(--bg-terminal);
+        }
+
+        .empty-state h3 {
+            color: #f0f3fa;
+            font-size: 18px;
+            letter-spacing: .2px;
         }
 
         .empty-state p {
-            max-width: 360px;
-            font-size: 14px;
-            line-height: 1.6;
-            margin-top: 8px;
+            max-width: 380px;
+            font-size: 13px;
+            line-height: 1.75;
+            margin-top: 10px;
         }
+
+        .empty-state strong { color: #c4c0ff; }
     </style>
 </head>
 <body>
@@ -324,22 +334,27 @@
             <span class="brand-dot"></span>
             <span>CISCO IOS AUTOMATION</span>
         </div>
-        <div class="status-badge">Target: 192.168.10.84:32770 (Telnet)</div>
+        <div class="status-badge">
+            Target: 192.168.10.27:32770 (Telnet)
+        </div>
     </header>
 
     <main class="dashboard">
-        <!-- Left Control Panel -->
+
         <aside class="card">
             <h2>Device Details</h2>
+
             <div class="info-list">
                 <div class="info-item">
                     <span>Host IP</span>
-                    <span>192.168.10.84</span>
+                    <span>192.168.10.27</span>
                 </div>
+
                 <div class="info-item">
                     <span>Port</span>
                     <span>32770</span>
                 </div>
+
                 <div class="info-item">
                     <span>Driver</span>
                     <span>cisco_ios_telnet</span>
@@ -347,6 +362,7 @@
             </div>
 
             <h2>Queued Commands</h2>
+
             <ul class="cmd-preview">
                 <li>show version</li>
                 <li>show ip interface brief</li>
@@ -354,14 +370,15 @@
             </ul>
 
             <form method="POST" onsubmit="startLoading()">
-                <button type="submit" id="runBtn" class="btn-run">
+                <button type="submit" id="runBtn" class="btn-run"
+                        aria-label="Run router commands">
                     Run Commands
                 </button>
             </form>
         </aside>
 
-        <!-- Right Terminal Output -->
         <section class="terminal-panel">
+
             {% if error %}
             <div class="error-banner">
                 <strong>Connection Error:</strong> {{ error }}
@@ -370,10 +387,11 @@
 
             {% if result %}
                 {% if result is mapping %}
+
                     <div class="tabs-bar">
                         {% for command in result.keys() %}
-                        <button type="button" 
-                                class="tab-btn {% if loop.first %}active{% endif %}" 
+                        <button type="button"
+                                class="tab-btn {% if loop.first %}active{% endif %}"
                                 onclick="switchTab(event, 'pane-{{ loop.index }}')">
                             {{ command }}
                         </button>
@@ -381,54 +399,79 @@
                     </div>
 
                     {% for command, output in result.items() %}
-                    <div id="pane-{{ loop.index }}" class="tab-content {% if loop.first %}active{% endif %}">
+                    <div id="pane-{{ loop.index }}"
+                         class="tab-content {% if loop.first %}active{% endif %}">
+
                         <div class="terminal-toolbar">
                             <span>Router# {{ command }}</span>
-                            <button type="button" class="copy-btn" onclick="copyOutput('code-{{ loop.index }}', this)">
+
+                            <button type="button" class="copy-btn"
+                                    onclick="copyOutput('code-{{ loop.index }}', this)">
                                 Copy Output
                             </button>
                         </div>
+
                         <pre id="code-{{ loop.index }}">{{ output }}</pre>
                     </div>
                     {% endfor %}
+
                 {% else %}
+
                     <div class="terminal-toolbar">
                         <span>Console Output</span>
                     </div>
+
                     <pre>{{ result }}</pre>
+
                 {% endif %}
+
             {% else %}
-                <div class="empty-state">
-                    <h3>Ready to Connect</h3>
-                    <p>Pindota ang <strong>Run Commands</strong> sa wala para mo-login sa router ug i-display ang output dinhi.</p>
-                </div>
-            {% endif %}
+    <div class="empty-state">
+        <h3>Ready to Connect</h3>
+        <p>
+            Click the <strong>Run Commands</strong> button on the left to log in to the router and display the output here.
+        </p>
+    </div>
+{% endif %}
+
         </section>
     </main>
 
     <script>
         function startLoading() {
             const btn = document.getElementById('runBtn');
+
             btn.disabled = true;
-            btn.innerHTML = '<span class="spinner"></span> Connecting to router...';
+            btn.innerHTML =
+                '<span class="spinner"></span> Connecting to router...';
         }
 
         function switchTab(event, paneId) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(pane => pane.classList.remove('active'));
-            
+            document.querySelectorAll('.tab-btn')
+                .forEach(btn => btn.classList.remove('active'));
+
+            document.querySelectorAll('.tab-content')
+                .forEach(pane => pane.classList.remove('active'));
+
             event.currentTarget.classList.add('active');
+
             document.getElementById(paneId).classList.add('active');
         }
 
         function copyOutput(elementId, button) {
             const text = document.getElementById(elementId).innerText;
+
             navigator.clipboard.writeText(text).then(() => {
                 const originalText = button.innerText;
+
                 button.innerText = 'Copied!';
-                setTimeout(() => { button.innerText = originalText; }, 1500);
+
+                setTimeout(() => {
+                    button.innerText = originalText;
+                }, 1500);
             });
         }
     </script>
+
 </body>
 </html>
